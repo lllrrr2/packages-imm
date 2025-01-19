@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_NAME:=mdns
 PKG_NAME:=node-$(PKG_NPM_NAME)
 PKG_VERSION:=2.7.2
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
@@ -30,7 +30,7 @@ define Package/node-mdns
   CATEGORY:=Languages
   TITLE:=multicast DNS service discovery
   URL:=https://www.npmjs.org/package/mdns
-  DEPENDS:=+node +mdnsd
+  DEPENDS:=+node +mdnsd @NODEJS_23:BROKEN
 endef
 
 define Package/node-mdns/description
@@ -56,7 +56,7 @@ define Build/Compile
 	npm install --prefer-offline --no-audit --global-style --install-strategy=shallow --no-save --omit=dev --no-package-lock --build-from-source --target_arch=$(NODEJS_CPU)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
-	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 rmdir || true
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 -r rmdir || true
 endef
 
 define Package/node-mdns/install

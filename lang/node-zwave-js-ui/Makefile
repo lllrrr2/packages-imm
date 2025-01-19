@@ -6,13 +6,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=zwave-js-ui
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=9.6.2
+PKG_VERSION:=9.29.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=c98ca0403b14c605950f7931496f37dcc34f53ea455e8cb270730cda6db39da8
+PKG_HASH:=dac7ce3ee793eb050066014b5168bac32716758255adf1c094459473335d46db
 
 PKG_MAINTAINER:=David Woodhouse <dwmw2@infradead.org>
 PKG_LICENSE:=MIT
@@ -60,7 +60,7 @@ define Build/Compile
 	npm install --prefer-offline --no-audit --global-style --install-strategy=shallow --no-save --omit=dev --no-package-lock --build-from-source --target_arch=$(NODEJS_CPU) --omit=optional --no-optional --prefer-dedupe
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
-	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 rmdir || true
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 -r rmdir || true
 	rm -rf $(PKG_BUILD_DIR)/node_modules/zwave-js/node_modules/@serialport/bindings-cpp/prebuilds
 	rm -rf $(PKG_BUILD_DIR)/node_modules/zwave-js/node_modules/@serialport/bindings-cpp/src
 	rm -rf $(PKG_BUILD_DIR)/node_modules/zwave-js/node_modules/moment/min
@@ -69,9 +69,9 @@ define Build/Compile
 	rm -rf $(PKG_BUILD_DIR)/node_modules/@zwave-js/winston-daily-rotate-file/node_modules/moment/min
 	rm -rf $(PKG_BUILD_DIR)/node_modules/@zwave-js/winston-daily-rotate-file/node_modules/moment/src
 	rm -rf $(PKG_BUILD_DIR)/node_modules/@zwave-js/winston-daily-rotate-file/node_modules/moment/locale
-	rm -rf $(PKG_BUILD_DIR)/node_modules/zwave-js/node_modules/@zwave-js/core/build/test/*.ts
-	rm -rf $(PKG_BUILD_DIR)/node_modules/zwave-js/node_modules/@zwave-js/core/build/test/*.map
-	clean-modules -y -D $(PKG_BUILD_DIR)/node_modules "!**/*.png" "!**/@zwave-js/core/build/test/" \
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@zwave-js/core/build/cjs/test/*.ts
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@zwave-js/core/build/cjs/test/*.map
+	clean-modules -y -D $(PKG_BUILD_DIR)/node_modules "!**/*.png" "!**/@zwave-js/core/build/cjs/test/" \
 		"**/*.d.ts" "**/@types/**" "**/obj.target/" "**/config.gypi" \
 		"**/.nvmrc" "**/.devcontainer/" "**/.bowerrc" "**/.airtap.yml" "**/.test/" \
 		"**/.notags" "**/.releaserc" "**/.dprint.jsonc" "**/.eslintrc" "**/locales/" \
@@ -83,7 +83,7 @@ define Package/node-zwave-js-ui/install
 	$(INSTALL_DIR) $(1)/opt/$(PKG_NPM_NAME)
 	$(CP) $(PKG_BUILD_DIR)/{package.json,LICENSE,*.md} \
 		$(1)/opt/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_BUILD_DIR)/{server,dist,snippets,node_modules,public} \
+	$(CP) $(PKG_BUILD_DIR)/{server,dist,snippets,node_modules} \
 		$(1)/opt/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) /opt/$(PKG_NPM_NAME)/server/bin/www.js $(1)/usr/bin/zwave-js-ui

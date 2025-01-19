@@ -6,13 +6,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=npm-check-updates
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=16.14.12
+PKG_VERSION:=17.1.12
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=8639acc133c48804c2c53ee8255f70deb204c1b2a4bd952b970b3254d6c71e57
+PKG_HASH:=783d5a27b6f0094f82241538ae8583e10d64f5710274db48d4876320cfb2dd86
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>, Patrik Laszlo <alabard@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -56,7 +56,7 @@ define Build/Compile
 	npm install --prefer-offline --no-audit --global-style --install-strategy=shallow --no-save --omit=dev --no-package-lock --legacy-peer-deps --ignore-scripts
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
-	find $(PKG_BUILD_DIR)/node_modules -type d -empty -delete || true
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -print0 | xargs -0 -r rmdir || true
 endef
 
 define Package/node-npm-check-updates/install
@@ -68,11 +68,11 @@ define Package/node-npm-check-updates/install
 	$(CP) $(PKG_BUILD_DIR)/{node_modules,build} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/build/src/bin/cli.js $(1)/usr/bin/npm-check-updates
-	$(LN) ../lib/node/$(PKG_NPM_NAME)/build/src/bin/cli.js $(1)/usr/bin/ncu
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/build/cli.js $(1)/usr/bin/npm-check-updates
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/build/cli.js $(1)/usr/bin/ncu
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
-	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/build/src/bin/cli.js
+	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/build/cli.js
 endef
 
 define Package/node-npm-check-updates/postrm

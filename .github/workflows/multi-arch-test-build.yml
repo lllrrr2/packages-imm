@@ -55,7 +55,7 @@ jobs:
             runtime_test: true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
           for ROOT in $PKG_ROOTS; do
             for CHANGE in $CHANGES; do
               if [[ "$CHANGE" == "$ROOT"* ]]; then
-                PACKAGES+=$(echo "$ROOT" | sed -e 's@.*/\(.*\)/@\1 @')
+                PACKAGES+=$(echo "$ROOT" | sed -e 's@\(.*/\)*\(.*\)/@\2 @')
                 break
               fi
             done
@@ -112,21 +112,23 @@ jobs:
 
       - name: Move created packages to project dir
         if: always()
-        run: cp bin/packages/${{ matrix.arch }}/packages_ci/* . || true
+        run: cp -v bin/packages/${{ matrix.arch }}/packages_ci/* . || true
 
       - name: Store packages
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch}}-${{ github.sha}}-packages
           path: |
             Packages
             Packages.*
             *.ipk
+            packages.adb
+            *.apk
 
       - name: Store logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch}}-${{ github.sha}}-logs
           path: logs/
@@ -156,11 +158,11 @@ jobs:
       - name: Build Docker container
         if: ${{ matrix.runtime_test && fromJSON(env.HAVE_IPKS) }}
         run: |
-          docker build -t test-container --build-arg ARCH .github/workflows/
+          docker build --platform linux/${{ matrix.arch }} -t test-container --build-arg ARCH .github/workflows/
         env:
           ARCH: ${{ matrix.arch }}-${{ env.BRANCH }}
 
       - name: Test via Docker container
         if: ${{ matrix.runtime_test && fromJSON(env.HAVE_IPKS) }}
         run: |
-          docker run --rm -v $GITHUB_WORKSPACE:/ci test-container
+          docker run --platform linux/${{ matrix.arch }} --rm -v $GITHUB_WORKSPACE:/ci test-container

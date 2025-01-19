@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zerotier
-PKG_VERSION:=1.12.2
-PKG_RELEASE:=2
+PKG_VERSION:=1.14.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=7c6512cfc208374ea9dc9931110e35f71800c34890e0f35991ea485aae66e31c
+PKG_HASH:=4f9f40b27c5a78389ed3f3216c850921f6298749e5819e9f2edabb2672ce9ca0
 PKG_BUILD_DIR:=$(BUILD_DIR)/ZeroTierOne-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Moritz Warning <moritzwarning@web.de>
@@ -62,23 +62,21 @@ endef
 TARGET_CFLAGS += -Wl,-z,noexecstack
 TARGET_LDFLAGS += -Wl,--as-needed -Wl,-z,noexecstack
 
-define Package/zerotier/conffiles
-/etc/config/zerotier
-/etc/config/zero/
-endef
+#define Package/zerotier/conffiles
+#/etc/config/zerotier
+#endef
 
 define Package/zerotier/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
 
 ifeq ($(CONFIG_ZEROTIER_ENABLE_SELFTEST),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-selftest $(1)/usr/bin/
 endif
 	#$(CP) ./files/* $(1)/
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/etc/config/zerotier $(1)/etc/config/zerotier
 endef
 
 $(eval $(call BuildPackage,zerotier))
